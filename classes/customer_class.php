@@ -31,6 +31,34 @@ class customer_class extends db_connection {
         }
     }
 
+    // Method to get a customer by email address and verify password
+    public function get_customer_by_email($email, $password) {
+        // Prepare statement to get customer by email
+        $stmt = $this->conn->prepare("SELECT customer_id, customer_name, customer_email, customer_pass, 
+                                     customer_country, customer_city, customer_contact, user_role 
+                                     FROM customer WHERE customer_email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        // Check if customer exists
+        if ($result->num_rows === 0) {
+            return "Invalid email or password.";
+        }
+
+        // Fetch customer data
+        $customer = $result->fetch_assoc();
+        
+        // Verify password
+        if (password_verify($password, $customer['customer_pass'])) {
+            // Remove password from returned data for security
+            unset($customer['customer_pass']);
+            return $customer;
+        } else {
+            return "Invalid email or password.";
+        }
+    }
+
     // Method to edit an existing customer's details
     public function edit_customer($customer_id, $name, $email, $country, $city, $contact) {
         // Update the customer's details in the database
@@ -51,7 +79,7 @@ class customer_class extends db_connection {
         }
     }
 
-        // Method to delete a customer from the database
+    // Method to delete a customer from the database
     public function delete_customer($customer_id) {
         // Delete the customer from the database
         $stmt = $this->conn->prepare("DELETE FROM customer WHERE customer_id = ?");
