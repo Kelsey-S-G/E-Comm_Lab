@@ -7,19 +7,21 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-function isLoggedIn()
-{
-    if (isset($_SESSION['user_id'])) {
-        return true;
-    }
-    return false;
+/**
+ * Check if a user is logged in.
+ *
+ * @return bool True if the user is logged in, false otherwise.
+ */
+function isUserLoggedIn(): bool {
+    return isset($_SESSION['user_id']);
 }
 
-function isAdmin()
-{
-    if (is_logged_in() && isset($_SESSION['user_role']) && $_SESSION['user_role'] == 1) {
-        return true;
-    }
-    return false;
+/**
+ * Check if a user has administrative privileges.
+ *
+ * @return bool True if the user has admin privileges, false otherwise.
+ */
+function isAdmin(): bool {
+    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
 }
 ?>
