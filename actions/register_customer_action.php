@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode([
             "status" => "success", 
             "message" => "Registration successful! Redirecting you to the login page...",
-            "redirect" => "login/login.php"
+            "redirect" => "login.php"
         ]);
     } else {
         echo json_encode([
