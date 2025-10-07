@@ -22,6 +22,6 @@ function isUserLoggedIn(): bool {
  * @return bool True if the user has admin privileges, false otherwise.
  */
 function isAdmin(): bool {
-    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
+    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 1;
 }
 ?>

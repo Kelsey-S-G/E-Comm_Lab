@@ -3,7 +3,7 @@ session_start();
 require_once(__DIR__ . "/../settings/core.php");
 
 // Check if the user is logged in
-if (!isLoggedIn()) {
+if (!isUserLoggedIn()) {
     header("Location: ../login/login.php");
     exit();
 }
