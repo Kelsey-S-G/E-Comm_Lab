@@ -45,7 +45,7 @@ function check_admin_privilege() {
     check_login(); // First ensure they are logged in
     if (!is_admin()) {
         // Redirect non-admins to the main profile
-        header("Location: ../views/profile.php");
+        header("Location: ../view/profile.php");
         exit();
     }
 }
