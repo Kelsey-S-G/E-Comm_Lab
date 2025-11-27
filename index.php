@@ -2,11 +2,10 @@
 // 1. Load Core Settings
 require_once 'settings/core.php';
 
-// 2. Include the Header (Navigation logic is inside header.php)
+// 2. Include the Header 
 include 'view/header.php';
 ?>
 
-<!-- Original Content Structure Preserved -->
 <div class="home-container10">
     <div class="home-container11">
         <div class="home-container12">

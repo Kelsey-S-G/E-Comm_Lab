@@ -1,49 +1,47 @@
 <?php
 // actions/process_checkout_action.php
+// UPDATED: Prepares order for Paystack (Does NOT finalize payment)
+
 require_once("../controllers/cart_controller.php");
 require_once("../controllers/order_controller.php");
 require_once("../settings/core.php");
 
-check_login(); // Security Check
+check_login(); 
 
 header('Content-Type: application/json');
 
 $user_id = get_user_id();
 
-// 1. Get Current Cart Items
+// 1. Get Cart
 $cart_items = get_cart_items_ctr($user_id);
-$total_amount = get_cart_total_ctr($user_id);
-
 if (empty($cart_items)) {
     echo json_encode(['status' => 'error', 'message' => 'Cart is empty']);
     exit();
 }
 
-// 2. Generate Unique Invoice Number
-$invoice_no = 'REC-' . mt_rand(1000, 9999) . '-' . time();
+// 2. Generate Reference (Invoice No)
+// This must match what we send to Paystack later
+$invoice_no = 'REC-' . mt_rand(10000, 99999) . '-' . time();
 
-// 3. Create Order
-$order_id = create_order_ctr($user_id, $invoice_no);
+// 3. Create "Pending" Order
+$order_id = create_order_ctr($user_id, $invoice_no, 'pending');
 
 if ($order_id) {
-    // 4. Move Cart Items to Order Details
+    // 4. Save Cart Items to Order Details (Snapshot)
     foreach ($cart_items as $item) {
         add_order_details_ctr($order_id, $item['p_id'], $item['qty']);
     }
 
-    // 5. Record Payment (Simulated)
-    record_payment_ctr($total_amount, $user_id, $order_id);
-
-    // 6. Empty Cart
-    empty_cart_ctr($user_id);
-
+    // 5. Return Success & Invoice No
+    // The Frontend will use this invoice_no as the Paystack "reference"
     echo json_encode([
         'status' => 'success', 
-        'message' => 'Payment successful! Order placed.',
-        'order_id' => $order_id,
-        'invoice' => $invoice_no
+        'message' => 'Order initialized',
+        'invoice_no' => $invoice_no,
+        'order_id' => $order_id
     ]);
+
 } else {
-    echo json_encode(['status' => 'error', 'message' => 'Failed to create order']);
+    echo json_encode(['status' => 'error', 'message' => 'Failed to initialize order']);
 }
 ?>

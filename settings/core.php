@@ -63,4 +63,52 @@ function get_user_id() {
 function get_user_name() {
     return isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Guest';
 }
+
+/**
+ * Send Payment Receipt Email
+ */
+function send_payment_receipt($email, $name, $reference, $amount, $currency = 'GHS') {
+    $subject = "Payment Receipt - ReConnect Order #$reference";
+    
+    $message = "
+    <html>
+    <head>
+      <title>Payment Receipt</title>
+    </head>
+    <body style='font-family: Arial, sans-serif;'>
+      <div style='max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
+        <h2 style='color: #2d6cdf;'>ReConnect Receipt</h2>
+        <p>Hi $name,</p>
+        <p>Thank you for your payment. Your transaction was successful.</p>
+        
+        <table style='width: 100%; border-collapse: collapse; margin: 20px 0;'>
+          <tr style='background: #f9f9f9;'>
+            <td style='padding: 10px;'><strong>Reference:</strong></td>
+            <td style='padding: 10px;'>$reference</td>
+          </tr>
+          <tr>
+            <td style='padding: 10px;'><strong>Amount Paid:</strong></td>
+            <td style='padding: 10px;'>$currency $amount</td>
+          </tr>
+          <tr style='background: #f9f9f9;'>
+            <td style='padding: 10px;'><strong>Date:</strong></td>
+            <td style='padding: 10px;'>" . date('Y-m-d H:i:s') . "</td>
+          </tr>
+        </table>
+        
+        <p>You can view your order details in your dashboard.</p>
+        <p>Best Regards,<br>The ReConnect Team</p>
+      </div>
+    </body>
+    </html>
+    ";
+
+    // Headers for HTML email
+    $headers = "MIME-Version: 1.0" . "\r\n";
+    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+    $headers .= "From: no-reply@reconnect.com" . "\r\n";
+
+    // Send
+    return mail($email, $subject, $message, $headers);
+}
 ?>

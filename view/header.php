@@ -68,7 +68,8 @@ $rootPath = (basename($_SERVER['PHP_SELF']) == 'index.php') ? '.' : '..';
                     <a href="<?php echo $rootPath; ?>/view/profile.php"><div class="navigation__login"><span>Profile</span></div></a>
                 <?php endif; ?>
 
-                <a href="<?php echo $rootPath; ?>/actions/logout.php"><button class="btn btn-outline btn-sm">Logout</button></a>
+                <!-- UPDATED LOGOUT LINK -->
+                <a href="<?php echo $rootPath; ?>/actions/logout_action.php"><button class="btn btn-outline btn-sm">Logout</button></a>
             <?php else: ?>
                 <!-- Guest State -->
                 <a href="<?php echo $rootPath; ?>/login/signin.php"><div class="navigation__login"><span>Sign In</span></div></a>

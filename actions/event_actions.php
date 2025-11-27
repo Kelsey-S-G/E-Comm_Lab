@@ -1,22 +1,15 @@
 <?php
+// actions/event_actions.php
 require_once("../controllers/event_controller.php");
 require_once("../settings/core.php");
+require_once("../settings/file_upload_handler.php"); // Include Helper
 
-check_login(); // Ensure user is logged in
+check_login();
 
 header('Content-Type: application/json');
 
 $action = $_POST['action'] ?? '';
 $user_id = get_user_id();
-
-// Helper for Image Upload (Reused)
-function uploadEventImage($file) {
-    $target_dir = "../uploads/events/";
-    if (!is_dir($target_dir)) mkdir($target_dir, 0755, true);
-    $target_file = $target_dir . basename($file["name"]);
-    if(move_uploaded_file($file["tmp_name"], $target_file)) return $target_file;
-    return false;
-}
 
 switch ($action) {
     case 'create':
@@ -28,12 +21,14 @@ switch ($action) {
         $location = $_POST['location'];
         $type = $_POST['type'];
         
+        // CLEANER IMAGE HANDLING
         $imagePath = null;
-        if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-            $imagePath = uploadEventImage($_FILES['image']);
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $imagePath = uploadFile($_FILES['image'], 'events'); // Save to 'events' subfolder
         }
 
-        if (!$imagePath) $imagePath = "../assets/event_placeholder.jpg"; // Fallback
+        // Fallback image if upload fails or none provided
+        if (!$imagePath) $imagePath = "../assets/event_placeholder.jpg";
 
         $result = add_event_ctr($user_id, $title, $desc, $date, $start, $end, $location, $type, $imagePath);
         
@@ -51,6 +46,7 @@ switch ($action) {
         if ($result) {
             echo json_encode(['status' => 'success', 'message' => 'Registered successfully!']);
         } else {
+            // This likely means a duplicate entry (already registered) or DB error
             echo json_encode(['status' => 'error', 'message' => 'Already registered or error occurred']);
         }
         break;

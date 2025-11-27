@@ -79,13 +79,13 @@ $institutions = get_all_institutions_ctr(); // Fetch institutions for dropdown
                     <!-- Full Name -->
                     <div class="form-group">
                         <label>Full Name</label>
-                        <input type="text" name="full_name" placeholder="John Doe" required />
+                        <input type="text" name="full_name" placeholder="" required />
                     </div>
 
                     <!-- Email -->
                     <div class="form-group">
                         <label>Email Address</label>
-                        <input type="email" id="email" name="email" placeholder="you@alumni.com" required />
+                        <input type="email" id="email" name="email" placeholder="" required />
                     </div>
 
                     <!-- Contact Info (Week 2 Req) -->
@@ -102,7 +102,7 @@ $institutions = get_all_institutions_ctr(); // Fetch institutions for dropdown
 
                     <div class="form-group">
                         <label>Contact Number</label>
-                        <input type="tel" id="contact" name="contact_no" placeholder="0244123456" required />
+                        <input type="tel" id="contact" name="contact_no" placeholder="" required />
                     </div>
 
                     <div class="signup-divider">Verification Details</div>
@@ -110,18 +110,13 @@ $institutions = get_all_institutions_ctr(); // Fetch institutions for dropdown
                     <!-- ReConnect Specifics -->
                     <div class="form-group">
                         <label>University/School</label>
-                        <select name="institution_id" class="form-input" required>
+                        <select name="institution_id" class="form-control" required>
                             <option value="">Select your institution</option>
                             <?php
                             if ($institutions) {
                                 foreach ($institutions as $inst) {
                                     echo "<option value='{$inst['institution_id']}'>{$inst['name']}</option>";
                                 }
-                            } else {
-                                // Fallback options match original HTML but with values
-                                echo "<option value='1'>University of Lagos</option>";
-                                echo "<option value='2'>University of Nigeria, Nsukka</option>";
-                                echo "<option value='3'>Obafemi Awolowo University</option>";
                             }
                             ?>
                         </select>
@@ -142,11 +137,6 @@ $institutions = get_all_institutions_ctr(); // Fetch institutions for dropdown
                     <div class="form-group">
                         <label>Password</label>
                         <input type="password" id="password" name="password" placeholder="Create a strong password" required />
-                    </div>
-
-                    <div class="signup-terms">
-                        <input type="checkbox" required />
-                        <span>I agree to the Terms of Service and Privacy Policy</span>
                     </div>
 
                     <button type="submit" id="submitBtn" class="signup-submit-btn">Create Account</button>

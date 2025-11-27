@@ -1,34 +1,29 @@
 function showPaymentModal() {
-    document.getElementById("paymentModal").style.display = "flex";
-}
+    // Instead of showing a local modal, we now initiate the Paystack flow
+    const btn = document.querySelector(".checkout-form .btn-primary");
+    const originalText = btn.innerText;
+    
+    btn.disabled = true;
+    btn.innerText = "Initializing Payment...";
 
-function closePaymentModal() {
-    document.getElementById("paymentModal").style.display = "none";
-}
-
-function processPayment() {
-    // Disable buttons to prevent double clicks
-    const btns = document.querySelectorAll("#paymentModal button");
-    btns.forEach(b => b.disabled = true);
-    btns[1].innerText = "Processing...";
-
-    fetch("../actions/process_checkout_action.php", {
+    fetch("../actions/initialize_payment_action.php", {
         method: "POST"
     })
     .then(res => res.json())
     .then(data => {
         if (data.status === "success") {
-            alert("Payment Successful! Invoice: " + data.invoice);
-            window.location.href = "listings.php"; // Or a success page
+            // Redirect user to Paystack Checkout Page
+            window.location.href = data.authorization_url;
         } else {
-            alert("Payment Failed: " + data.message);
-            closePaymentModal();
-            btns.forEach(b => b.disabled = false);
+            alert("Payment Error: " + data.message);
+            btn.disabled = false;
+            btn.innerText = originalText;
         }
     })
     .catch(err => {
         console.error(err);
-        alert("Network error");
-        closePaymentModal();
+        alert("Network error occurred.");
+        btn.disabled = false;
+        btn.innerText = originalText;
     });
 }
