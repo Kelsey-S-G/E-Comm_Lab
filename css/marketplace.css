@@ -138,18 +138,21 @@ html {
   font-family: var(--font-family-body);
 }
 
+
 .thq-select {
   /* enhanced dropdown styling with proper colors, font, and hover state */
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background-color: var(--color-surface);
+  border: 1px solid var(--color-primary); 
+  background-color: var(--color-surface-elevated);
+  box-shadow: 0 2px 8px rgba(45, 108, 223, 0.1);
+  
   color: var(--color-on-surface);
   font-family: var(--font-family-body);
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
   appearance: none;
+  /* SVG Arrow */
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg width%3D%2720%27 height%3D%2720%27 xmlns%3D%27http%3A//www.w3.org/2000/svg%27 viewBox%3D%270 0 20 20%27 fill%3D%27%23e9f0f5%27%3E%3Cpath d%3D%27M4.293 7.293a1 1 0 011.414 0L10 11.586l4.293-4.293a1 1 0 111.414 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414z%27/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
@@ -157,24 +160,16 @@ html {
   padding-right: 2.5rem;
 }
 
-.thq-select:hover {
-  /* hover state with primary color border and background highlight */
-  border-color: var(--color-primary);
-  background-color: var(--color-surface-elevated);
-  box-shadow: 0 2px 8px rgba(45, 108, 223, 0.1);
-}
-
+/* Ensure focus still looks good */
 .thq-select:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(45, 108, 223, 0.15);
+  box-shadow: 0 0 0 3px rgba(45, 108, 223, 0.25);
 }
 
+/* Ensure options are readable in dark mode */
 .thq-select option {
-  /* style select options for better readability */
-  background-color: var(--color-surface);
+  background-color: var(--color-surface-elevated);
   color: var(--color-on-surface);
-  font-family: var(--font-family-body);
   padding: 0.5rem;
 }
 

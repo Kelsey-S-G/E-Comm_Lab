@@ -13,14 +13,24 @@ $cart_total = get_cart_total_ctr($user_id);
     <title>Shopping Cart - ReConnect</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../style.css" />
-    <link rel="stylesheet" href="../css/marketplace.css" /> <!-- Reusing styles -->
+    <link rel="stylesheet" href="../css/marketplace.css" />
     <style>
         .cart-table { width: 100%; border-collapse: collapse; margin: 2rem 0; }
-        .cart-table th { text-align: left; padding: 1rem; background: var(--color-surface-elevated); }
-        .cart-table td { padding: 1rem; border-bottom: 1px solid var(--color-border); }
+        
+        /* Updated: Table Headers are White */
+        .cart-table th { text-align: left; padding: 1rem; background: var(--color-surface-elevated); color: white; }
+        
+        /* Updated: Table Data is White */
+        .cart-table td { padding: 1rem; border-bottom: 1px solid var(--color-border); color: white; }
+        
         .cart-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
-        .qty-input { width: 50px; padding: 5px; text-align: center; }
-        .cart-summary { background: var(--color-surface-elevated); padding: 2rem; border-radius: 12px; text-align: right; margin-top: 2rem; }
+        .qty-input { width: 50px; padding: 5px; text-align: center; border-radius: 4px; border: 1px solid var(--color-border); background: var(--color-surface); color: white; }
+        
+        /* Updated: Summary Text is White */
+        .cart-summary { background: var(--color-surface-elevated); padding: 2rem; border-radius: 12px; text-align: right; margin-top: 2rem; color: white; }
+        
+        /* Updated: Alert Text is White */
+        .alert-info { background-color: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.3); color: white; padding: 3rem; text-align: center; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -49,7 +59,7 @@ $cart_total = get_cart_total_ctr($user_id);
                                     <img src="<?php echo $img; ?>" class="cart-img">
                                     <div>
                                         <strong><?php echo $item['title']; ?></strong><br>
-                                        <small><?php echo ucfirst($item['listing_type']); ?></small>
+                                        <small style="color: var(--color-on-surface-secondary);"><?php echo ucfirst($item['listing_type']); ?></small>
                                     </div>
                                 </td>
                                 <td>GHS <?php echo number_format($item['price'], 2); ?></td>
@@ -74,7 +84,7 @@ $cart_total = get_cart_total_ctr($user_id);
                     </div>
                 </div>
             <?php else: ?>
-                <div class="alert alert-info" style="text-align: center; padding: 3rem;">
+                <div class="alert alert-info">
                     Your cart is empty. <br><br>
                     <a href="listings.php" class="btn btn-primary">Browse Marketplace</a>
                 </div>

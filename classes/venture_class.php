@@ -3,8 +3,7 @@ require_once(__DIR__ . "/../settings/db_class.php");
 
 class Venture extends db_connection {
 
-    // ... (Previous methods add_venture, get_all_ventures, get_my_ventures remain) ...
-
+    // ... (Keep add_venture, get_all_ventures, get_my_ventures) ...
     public function add_venture($name, $owner_id, $cat_id, $desc) {
         $name = mysqli_real_escape_string($this->db_conn(), $name);
         $desc = mysqli_real_escape_string($this->db_conn(), $desc);
@@ -32,10 +31,21 @@ class Venture extends db_connection {
         return $this->db_fetch_all($sql);
     }
 
-    // NEW: Get Single Venture with Owner Info (For Permissions)
+    // NEW: Fetch all ventures for an institution (For Admin View)
+    public function get_ventures_by_institution($inst_id) {
+        $inst_id = (int)$inst_id;
+        $sql = "SELECT v.*, c.cat_name, a.full_name as owner_name 
+                FROM ventures v 
+                JOIN categories c ON v.cat_id = c.cat_id 
+                JOIN alumni a ON v.owner_id = a.alumni_id
+                WHERE a.institution_id = '$inst_id'";
+        return $this->db_fetch_all($sql);
+    }
+
+    // ... (Keep get_one_venture, update_venture, delete_venture) ...
     public function get_one_venture($id) {
         $id = (int)$id;
-        $sql = "SELECT v.*, a.institution_id as owner_institution_id 
+        $sql = "SELECT v.*, a.institution_id as owner_institution_id, a.full_name as owner_name, v.owner_id 
                 FROM ventures v 
                 JOIN alumni a ON v.owner_id = a.alumni_id
                 WHERE v.venture_id = '$id'";

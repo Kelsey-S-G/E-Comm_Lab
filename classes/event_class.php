@@ -3,7 +3,7 @@ require_once(__DIR__ . "/../settings/db_class.php");
 
 class Event extends db_connection {
 
-    // ... (Previous methods: add_event, get_upcoming_events, register_attendee, get_attendee_count) ...
+    // ... (Keep add_event, get_upcoming_events, register_attendee, get_attendee_count) ...
     public function add_event($organizer_id, $title, $desc, $date, $start, $end, $location, $type, $image) {
         $title = mysqli_real_escape_string($this->db_conn(), $title);
         $desc = mysqli_real_escape_string($this->db_conn(), $desc);
@@ -39,19 +39,29 @@ class Event extends db_connection {
         return $result['count'];
     }
 
-    // NEW: Update Event
-    public function update_event($id, $title, $desc, $date, $start, $end, $location, $type) {
+    // NEW: Fetch single event for editing
+    public function get_one_event($id) {
+        $id = mysqli_real_escape_string($this->db_conn(), $id);
+        $sql = "SELECT * FROM events WHERE event_id = '$id'";
+        return $this->db_fetch_one($sql);
+    }
+
+    // UPDATED: Update Event (Now handles Image)
+    public function update_event($id, $title, $desc, $date, $start, $end, $location, $type, $image = null) {
         $title = mysqli_real_escape_string($this->db_conn(), $title);
         $desc = mysqli_real_escape_string($this->db_conn(), $desc);
         $location = mysqli_real_escape_string($this->db_conn(), $location);
         
-        $sql = "UPDATE events SET title='$title', description='$desc', event_date='$date', start_time='$start', end_time='$end', location='$location', type='$type' WHERE event_id='$id'";
+        if ($image) {
+            $sql = "UPDATE events SET title='$title', description='$desc', event_date='$date', start_time='$start', end_time='$end', location='$location', type='$type', image='$image' WHERE event_id='$id'";
+        } else {
+            $sql = "UPDATE events SET title='$title', description='$desc', event_date='$date', start_time='$start', end_time='$end', location='$location', type='$type' WHERE event_id='$id'";
+        }
         return $this->db_query($sql);
     }
 
-    // NEW: Delete Event
+    // ... (Keep delete_event) ...
     public function delete_event($id) {
-        // Delete registrations first
         $this->db_query("DELETE FROM event_registrations WHERE event_id='$id'");
         $sql = "DELETE FROM events WHERE event_id='$id'";
         return $this->db_query($sql);

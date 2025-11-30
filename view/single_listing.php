@@ -8,7 +8,6 @@ if (!isset($_GET['id'])) {
 }
 
 $id = $_GET['id'];
-
 $listing = get_one_listing_ctr($id);
 
 if (!$listing) {
@@ -24,13 +23,21 @@ if (!$listing) {
     <link rel="stylesheet" href="../style.css" />
     <link rel="stylesheet" href="../css/marketplace.css" />
     <style>
-        /* Simple layout for single product */
         .single-product-container { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; padding: 4rem; max-width: 1200px; margin: 0 auto; }
         .product-main-img { width: 100%; border-radius: 12px; border: 1px solid var(--color-border); }
-        .product-details h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        
+        /* Updated: Listing Name is white */
+        .product-details h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: white; }
+        
         .product-meta { color: var(--color-on-surface-secondary); margin-bottom: 2rem; font-size: 0.9rem; }
         .product-price-lg { font-size: 2rem; font-weight: 700; color: var(--color-primary); margin-bottom: 1.5rem; }
-        .product-desc { line-height: 1.8; margin-bottom: 2rem; }
+        
+        /* Updated: Description is white */
+        .product-desc { line-height: 1.8; margin-bottom: 2rem; color: white; }
+        
+        /* Updated: Listing Type Badge text is white */
+        .badge { display: inline-block; padding: 0.35rem 0.75rem; background-color: rgba(45, 108, 223, 0.15); color: white; border-radius: 999px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; border: 1px solid var(--color-primary); }
+
         @media (max-width: 768px) { .single-product-container { grid-template-columns: 1fr; padding: 2rem; } }
     </style>
 </head>
@@ -62,7 +69,7 @@ if (!$listing) {
 
                 <div class="purchase-actions">
                     <form>
-                        <input type="number" id="qtyInput" value="1" min="1" style="padding: 10px; width: 60px; margin-right: 10px;">
+                        <input type="number" id="qtyInput" value="1" min="1" style="padding: 10px; width: 60px; margin-right: 10px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: white;">
                         <button type="button" class="btn btn-primary btn-lg" onclick="addToCart(<?php echo $listing['listing_id']; ?>)">
                             Add to Cart
                         </button>
@@ -76,7 +83,6 @@ if (!$listing) {
 
     <script>
         function addToCart(id) {
-            // 1. Get quantity from the input we just named
             const qtyInput = document.getElementById("qtyInput");
             const qty = qtyInput ? qtyInput.value : 1;
 
@@ -85,13 +91,11 @@ if (!$listing) {
                 return;
             }
 
-            // 2. Prepare Data
             const formData = new FormData();
             formData.append("action", "add");
             formData.append("listing_id", id);
             formData.append("qty", qty);
 
-            // 3. Send to Backend
             fetch("../actions/cart_actions.php", {
                 method: "POST",
                 body: formData
@@ -99,8 +103,6 @@ if (!$listing) {
             .then(response => response.json())
             .then(data => {
                 if (data.status === "success") {
-                    alert(data.message); // "Added to cart"
-                    // Optional: Ask to go to cart
                     if(confirm("Item added! Go to Cart?")) {
                         window.location.href = "cart.php";
                     }
@@ -110,7 +112,7 @@ if (!$listing) {
             })
             .catch(err => {
                 console.error(err);
-                alert("Network error. Please ensure you are logged in.");
+                alert("Network error.");
             });
         }
     </script>

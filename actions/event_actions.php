@@ -12,11 +12,7 @@ $user_role = $_SESSION['user_role'] ?? 2; // 1 = Admin
 
 switch ($action) {
     case 'create':
-        // Admin Only Check
-        if ($user_role != 1) {
-            echo json_encode(['status' => 'error', 'message' => 'Only admins can create events.']);
-            exit();
-        }
+        if ($user_role != 1) { echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); exit(); }
         
         $title = $_POST['title'];
         $desc = $_POST['desc'];
@@ -33,16 +29,47 @@ switch ($action) {
         if (!$imagePath) $imagePath = "../assets/event_placeholder.jpg";
 
         $result = add_event_ctr($user_id, $title, $desc, $date, $start, $end, $location, $type, $imagePath);
-        
-        if ($result) echo json_encode(['status' => 'success', 'message' => 'Event created successfully']);
+        if ($result) echo json_encode(['status' => 'success', 'message' => 'Event created']);
         else echo json_encode(['status' => 'error', 'message' => 'Failed to create event']);
         break;
 
-    case 'delete':
-        if ($user_role != 1) {
-            echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
-            exit();
+    // NEW CASE: Fetch Details for Edit Modal
+    case 'fetch_details':
+        $id = $_POST['event_id'];
+        $event = get_one_event_ctr($id);
+        if ($event) {
+            echo json_encode(['status' => 'success', 'data' => $event]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Event not found']);
         }
+        break;
+
+    // NEW CASE: Handle Update
+    case 'update':
+        if ($user_role != 1) { echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); exit(); }
+        
+        $id = $_POST['event_id'];
+        $title = $_POST['title'];
+        $desc = $_POST['desc'];
+        $date = $_POST['date'];
+        $start = $_POST['start'];
+        $end = $_POST['end'];
+        $location = $_POST['location'];
+        $type = $_POST['type'];
+        
+        $imagePath = null;
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $imagePath = uploadFile($_FILES['image'], 'events');
+        }
+
+        $result = update_event_ctr($id, $title, $desc, $date, $start, $end, $location, $type, $imagePath);
+        
+        if ($result) echo json_encode(['status' => 'success', 'message' => 'Event updated successfully']);
+        else echo json_encode(['status' => 'error', 'message' => 'Update failed']);
+        break;
+
+    case 'delete':
+        if ($user_role != 1) { echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); exit(); }
         $id = $_POST['event_id'];
         $result = delete_event_ctr($id);
         if ($result) echo json_encode(['status' => 'success', 'message' => 'Event deleted']);
@@ -53,7 +80,7 @@ switch ($action) {
         $event_id = $_POST['event_id'];
         $result = register_attendee_ctr($event_id, $user_id);
         if ($result) echo json_encode(['status' => 'success', 'message' => 'Registered successfully!']);
-        else echo json_encode(['status' => 'error', 'message' => 'Already registered or error']);
+        else echo json_encode(['status' => 'error', 'message' => 'Already registered']);
         break;
 
     default:

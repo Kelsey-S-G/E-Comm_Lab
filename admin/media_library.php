@@ -22,7 +22,18 @@ $my_files = $handler->get_user_files();
         .media-preview { width: 100%; height: 120px; object-fit: cover; background: #eee; }
         .media-info { padding: 0.5rem; font-size: 0.8rem; color: var(--color-on-surface); }
         .media-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold; display: block; }
-        .upload-zone { border: 2px dashed var(--color-primary); padding: 2rem; text-align: center; border-radius: 12px; background: rgba(45, 108, 223, 0.05); cursor: pointer; transition: background 0.3s; }
+        
+        /* Updated: Forced white text for Upload Zone */
+        .upload-zone { 
+            border: 2px dashed var(--color-primary); 
+            padding: 2rem; 
+            text-align: center; 
+            border-radius: 12px; 
+            background: rgba(45, 108, 223, 0.05); 
+            cursor: pointer; 
+            transition: background 0.3s;
+            color: white; /* Fixed: Text is now white */
+        }
         .upload-zone:hover { background: rgba(45, 108, 223, 0.1); }
     </style>
 </head>
@@ -36,6 +47,11 @@ $my_files = $handler->get_user_files();
                     <a href="venture.php" class="sidebar-link">My Ventures</a>
                     <a href="listing.php" class="sidebar-link">Manage Listings</a>
                     <a href="media_library.php" class="sidebar-link active">Media Library</a>
+                    
+                    <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 1): ?>
+                        <div style="border-top: 1px solid var(--color-border); margin: 10px 0;"></div>
+                        <a href="category.php" class="sidebar-link">🏢 Venture Sectors</a>
+                    <?php endif; ?>
                 </div>
             </aside>
 
@@ -44,7 +60,6 @@ $my_files = $handler->get_user_files();
                     <h2 class="section-title">Media Library</h2>
                     <p class="section-content">Manage images for your ventures, listings, and events.</p>
 
-                    <!-- Upload Area -->
                     <div class="upload-zone" id="dropZone">
                         <p>Drag & Drop files here or click to upload</p>
                         <form id="uploadForm" style="display:none;">
@@ -55,7 +70,6 @@ $my_files = $handler->get_user_files();
                         <div id="uploadStatus" style="margin-top: 10px; font-size: 0.9rem;"></div>
                     </div>
 
-                    <!-- File Grid -->
                     <div class="media-grid">
                         <?php if (!empty($my_files)): ?>
                             <?php foreach ($my_files as $file): ?>
@@ -76,7 +90,7 @@ $my_files = $handler->get_user_files();
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p style="grid-column: 1/-1; text-align: center; margin-top: 2rem;">No files uploaded yet.</p>
+                            <p style="grid-column: 1/-1; text-align: center; margin-top: 2rem; color: white;">No files uploaded yet.</p>
                         <?php endif; ?>
                     </div>
                 </section>
@@ -85,7 +99,6 @@ $my_files = $handler->get_user_files();
     </div>
 
     <script>
-        // Simple JS to handle the upload
         const fileInput = document.getElementById('fileInput');
         const statusDiv = document.getElementById('uploadStatus');
 
@@ -94,7 +107,7 @@ $my_files = $handler->get_user_files();
 
             const formData = new FormData(document.getElementById('uploadForm'));
             statusDiv.textContent = "Uploading...";
-            statusDiv.style.color = "var(--color-on-surface)";
+            statusDiv.style.color = "white"; // Also set status text to white
 
             fetch('../actions/upload_action.php', {
                 method: 'POST',
@@ -104,17 +117,17 @@ $my_files = $handler->get_user_files();
             .then(data => {
                 if (data.status === 'success') {
                     statusDiv.textContent = "Upload Successful!";
-                    statusDiv.style.color = "green";
-                    setTimeout(() => location.reload(), 1000); // Refresh to show new file
+                    statusDiv.style.color = "#4ade80"; // Green
+                    setTimeout(() => location.reload(), 1000);
                 } else {
                     statusDiv.textContent = "Error: " + data.message;
-                    statusDiv.style.color = "red";
+                    statusDiv.style.color = "#ef4444"; // Red
                 }
             })
             .catch(err => {
                 console.error(err);
                 statusDiv.textContent = "Upload failed due to network error.";
-                statusDiv.style.color = "red";
+                statusDiv.style.color = "#ef4444";
             });
         });
     </script>

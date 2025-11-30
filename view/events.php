@@ -6,128 +6,218 @@ $institution_id = $_SESSION['institution_id'] ?? 0;
 $events = get_upcoming_events_ctr($institution_id);
 $is_admin = is_admin();
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Events - ReConnect</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../style.css" />
-    <link rel="stylesheet" href="../css/events.css" />
-</head>
-<body>
-    <div class="events-container">
-        <?php include 'header.php'; ?>
+<?php include 'header.php'; ?>
 
-        <section class="events-hero">
-            <div class="events-hero-content">
-                <h1 class="hero-title">Alumni Events</h1>
-                <p class="hero-subtitle">Events happening at your institution.</p>
-                <!-- Only Admin can create -->
-                <?php if ($is_admin): ?>
-                    <button class="btn btn-primary" onclick="document.getElementById('createEventModal').style.display='flex'">Create Event</button>
-                <?php endif; ?>
-            </div>
-        </section>
+<link rel="stylesheet" href="../css/events.css" />
 
-        <section class="events-list">
-            <div class="events-timeline">
-                <?php if (!empty($events)): ?>
-                    <?php foreach ($events as $event): 
-                        $attendees = get_attendee_count_ctr($event['event_id']);
-                        $month = date('M', strtotime($event['event_date']));
-                        $day = date('d', strtotime($event['event_date']));
-                    ?>
-                    <div class="event-card" id="event-<?php echo $event['event_id']; ?>">
-                        <div class="event-image">
-                            <img src="<?php echo $event['image']; ?>" alt="<?php echo $event['title']; ?>" class="event-img" />
-                            <span class="event-badge"><?php echo ucfirst($event['type']); ?></span>
+<div class="events-container">
+    <section class="events-hero">
+        <div class="events-hero-content">
+            <h1 class="hero-title">Alumni Events</h1>
+            <p class="hero-subtitle">Events happening at your institution.</p>
+            
+            <?php if ($is_admin): ?>
+                <button class="btn btn-primary" onclick="openCreateModal()">Create Event</button>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <section class="events-list">
+        <div class="events-timeline">
+            <?php if (!empty($events)): ?>
+                <?php foreach ($events as $event): 
+                    $attendees = get_attendee_count_ctr($event['event_id']);
+                    $month = date('M', strtotime($event['event_date']));
+                    $day = date('d', strtotime($event['event_date']));
+                ?>
+                <div class="event-card" id="event-<?php echo $event['event_id']; ?>">
+                    <div class="event-image">
+                        <img src="<?php echo $event['image'] ? $event['image'] : '../assets/event_placeholder.jpg'; ?>" alt="<?php echo $event['title']; ?>" class="event-img" />
+                        <span class="event-badge"><?php echo ucfirst($event['type']); ?></span>
+                    </div>
+                    <div class="event-content">
+                        <div class="event-date">
+                            <div class="date-box">
+                                <div class="date-month"><?php echo $month; ?></div>
+                                <div class="date-day"><?php echo $day; ?></div>
+                            </div>
+                            <div class="event-meta">
+                                <p class="event-time"><?php echo date('g:i A', strtotime($event['start_time'])); ?> - <?php echo date('g:i A', strtotime($event['end_time'])); ?></p>
+                                <p class="event-location"><?php echo $event['location']; ?></p>
+                            </div>
                         </div>
-                        <div class="event-content">
-                            <div class="event-date">
-                                <div class="date-box">
-                                    <div class="date-month"><?php echo $month; ?></div>
-                                    <div class="date-day"><?php echo $day; ?></div>
-                                </div>
-                                <div class="event-meta">
-                                    <p class="event-time"><?php echo date('g:i A', strtotime($event['start_time'])); ?> - <?php echo date('g:i A', strtotime($event['end_time'])); ?></p>
-                                    <p class="event-location"><?php echo $event['location']; ?></p>
-                                </div>
-                            </div>
-                            <h3 class="event-title"><?php echo $event['title']; ?></h3>
-                            <p class="event-description"><?php echo substr($event['description'], 0, 100) . '...'; ?></p>
-                            <div class="event-details">
-                                <span class="detail-item">👥 <?php echo $attendees; ?> Attendees</span>
-                                <span class="detail-item">🎤 By <?php echo $event['organizer_name']; ?></span>
-                            </div>
-                            <div class="event-footer" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                <button class="btn btn-primary" onclick="registerEvent(<?php echo $event['event_id']; ?>)">Register</button>
-                                <?php if ($is_admin): ?>
-                                    <button class="btn btn-sm btn-outline" style="border-color: red; color: red;" onclick="deleteEvent(<?php echo $event['event_id']; ?>)">Delete</button>
-                                <?php endif; ?>
-                            </div>
+                        <h3 class="event-title"><?php echo $event['title']; ?></h3>
+                        <p class="event-description"><?php echo substr($event['description'], 0, 100) . '...'; ?></p>
+                        <div class="event-details">
+                            <span class="detail-item">👥 <?php echo $attendees; ?> Attendees</span>
+                            <span class="detail-item">🎤 By <?php echo $event['organizer_name']; ?></span>
+                        </div>
+                        <div class="event-footer" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" onclick="registerEvent(<?php echo $event['event_id']; ?>)">Register</button>
+                            <?php if ($is_admin): ?>
+                                <button class="btn btn-sm btn-outline" onclick="openEditModal(<?php echo $event['event_id']; ?>)">Edit</button>
+                                <button class="btn btn-sm btn-outline" style="border-color: red; color: red;" onclick="deleteEvent(<?php echo $event['event_id']; ?>)">Delete</button>
+                            <?php endif; ?>
                         </div>
                     </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <p style="text-align:center;">No upcoming events found for your institution.</p>
-                <?php endif; ?>
-            </div>
-        </section>
-
-        <?php include 'footer.php'; ?>
-    </div>
-
-    <div id="createEventModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center;">
-        <div style="background:var(--color-surface-elevated); padding:2rem; border-radius:12px; max-width:500px; width:90%; max-height:90vh; overflow-y:auto; border: 1px solid var(--color-border); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);">
-            <!-- Improved modal header styling to match page theme -->
-            <h2 style="margin:0 0 1.5rem 0; color:var(--color-on-surface); font-size:1.5rem; font-weight:600; font-family:var(--font-family-heading); border-bottom:2px solid var(--color-primary); padding-bottom:1rem;">Host an Event</h2>
-            <form id="createEventForm" enctype="multipart/form-data">
-                <input type="hidden" name="action" value="create">
-                <!-- Form fields (same as previous) -->
-                <div class="form-group"><label style="color:var(--color-on-surface); font-weight:600;">Title</label><input type="text" name="title" class="form-input" required></div>
-                <div class="form-group"><label style="color:var(--color-on-surface); font-weight:600;">Type</label>
-                    <select name="type" class="form-input">
-                        <option value="networking">Networking</option>
-                        <option value="workshop">Workshop</option>
-                        <option value="seminar">Seminar</option>
-                        <option value="social">Social</option>
-                    </select>
                 </div>
-                <div class="form-group"><label style="color:var(--color-on-surface); font-weight:600;">Date</label><input type="date" name="date" class="form-input" required></div>
-                <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                    <div class="form-group" style="margin-bottom:0;"><label style="color:var(--color-on-surface); font-weight:600;">Start</label><input type="time" name="start" class="form-input" required></div>
-                    <div class="form-group" style="margin-bottom:0;"><label style="color:var(--color-on-surface); font-weight:600;">End</label><input type="time" name="end" class="form-input" required></div>
-                </div>
-                <div class="form-group"><label style="color:var(--color-on-surface); font-weight:600;">Location</label><input type="text" name="location" class="form-input" placeholder="Zoom Link or Address" required></div>
-                <div class="form-group"><label style="color:var(--color-on-surface); font-weight:600;">Description</label><textarea name="desc" class="form-input" rows="3" required></textarea></div>
-                <div class="form-group"><label style="color:var(--color-on-surface); font-weight:600;">Cover Image</label><input type="file" name="image" class="form-input" accept="image/*"></div>
-
-                <!-- Updated button styling to match page theme -->
-                <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top:2rem;">
-                    <button type="button" class="btn btn-outline" onclick="document.getElementById('createEventModal').style.display='none'" style="border: 1px solid var(--color-border); color: var(--color-on-surface); background: transparent; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease;">Cancel</button>
-                    <button type="submit" class="btn btn-primary" style="background: var(--color-primary); color: var(--color-on-primary); padding: 0.75rem 1.5rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s ease;">Publish Event</button>
-                </div>
-            </form>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p style="text-align:center;">No upcoming events found for your institution.</p>
+            <?php endif; ?>
         </div>
-    </div>
+    </section>
+</div>
 
-    <script src="../js/events.js"></script>
-    <script>
-    function deleteEvent(id) {
-        if(!confirm("Are you sure you want to delete this event?")) return;
-        const formData = new FormData();
-        formData.append("action", "delete");
-        formData.append("event_id", id);
-        fetch("../actions/event_actions.php", { method: "POST", body: formData })
-        .then(res => res.json())
-        .then(data => {
-            if(data.status === "success") {
-                document.getElementById("event-"+id).remove();
-            } else {
-                alert(data.message);
-            }
+<div id="eventModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+        <h2 id="modalTitle" class="modal-title">Host an Event</h2>
+        
+        <form id="eventForm" enctype="multipart/form-data">
+            <input type="hidden" id="formAction" name="action" value="create">
+            <input type="hidden" id="eventId" name="event_id" value="">
+
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="eTitle" name="title" class="form-input" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Type</label>
+                <select id="eType" name="type" class="form-input">
+                    <option value="networking">Networking</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="seminar">Seminar</option>
+                    <option value="social">Social</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="eDate" name="date" class="form-input" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Start</label>
+                    <input type="time" id="eStart" name="start" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label>End</label>
+                    <input type="time" id="eEnd" name="end" class="form-input" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="eLocation" name="location" class="form-input" placeholder="Zoom Link or Address" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="eDesc" name="desc" class="form-input" rows="3" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Cover Image (Optional)</label>
+                <input type="file" name="image" class="form-input" accept="image/*">
+            </div>
+            
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveBtn">Publish Event</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="../js/events.js"></script>
+<script>
+function closeModal() {
+    const modal = document.getElementById('eventModal');
+    modal.classList.remove('active');
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
+}
+
+function openCreateModal() {
+    document.getElementById('eventForm').reset();
+    document.getElementById('formAction').value = 'create';
+    document.getElementById('eventId').value = '';
+    document.getElementById('modalTitle').innerText = 'Host an Event';
+    document.getElementById('saveBtn').innerText = 'Publish Event';
+    
+    const modal = document.getElementById('eventModal');
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('active'), 10);
+}
+
+function openEditModal(id) {
+    const formData = new FormData();
+    formData.append('action', 'fetch_details');
+    formData.append('event_id', id);
+
+    fetch('../actions/event_actions.php', { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(resp => {
+        if(resp.status === 'success') {
+            const data = resp.data;
+            document.getElementById('eTitle').value = data.title;
+            document.getElementById('eType').value = data.type;
+            document.getElementById('eDate').value = data.event_date;
+            document.getElementById('eStart').value = data.start_time;
+            document.getElementById('eEnd').value = data.end_time;
+            document.getElementById('eLocation').value = data.location;
+            document.getElementById('eDesc').value = data.description;
+            
+            document.getElementById('formAction').value = 'update';
+            document.getElementById('eventId').value = data.event_id;
+            document.getElementById('modalTitle').innerText = 'Edit Event';
+            document.getElementById('saveBtn').innerText = 'Save Changes';
+            
+            const modal = document.getElementById('eventModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+        } else {
+            alert(resp.message);
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById("eventForm");
+    if (form) {
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            fetch("../actions/event_actions.php", { method: "POST", body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            });
         });
     }
-    </script>
-</body>
-</html>
+});
+
+function deleteEvent(id) {
+    if(!confirm("Are you sure you want to delete this event?")) return;
+    const formData = new FormData();
+    formData.append("action", "delete");
+    formData.append("event_id", id);
+    fetch("../actions/event_actions.php", { method: "POST", body: formData })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "success") {
+            document.getElementById("event-"+id).remove();
+        } else {
+            alert(data.message);
+        }
+    });
+}
+</script>
+
+<?php include 'footer.php'; ?>

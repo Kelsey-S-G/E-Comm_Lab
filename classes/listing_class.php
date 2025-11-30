@@ -3,7 +3,7 @@ require_once(__DIR__ . "/../settings/db_class.php");
 
 class Listing extends db_connection {
 
-    // ... (Keep add_listing and get_all_listings as they are) ...
+    // ... (Keep existing add_listing, get_all_listings, get_my_listings, get_listings_by_institution) ...
     public function add_listing($venture_id, $title, $price, $desc, $type, $image, $keywords) {
         $title = mysqli_real_escape_string($this->db_conn(), $title);
         $desc = mysqli_real_escape_string($this->db_conn(), $desc);
@@ -22,7 +22,59 @@ class Listing extends db_connection {
         return $this->db_fetch_all($sql);
     }
 
-    // FIXED: Updated query to fetch venture, category, and owner details
+    public function get_my_listings($owner_id) {
+        $sql = "SELECT l.*, v.venture_name, c.cat_name 
+                FROM listings l
+                JOIN ventures v ON l.venture_id = v.venture_id
+                JOIN categories c ON v.cat_id = c.cat_id
+                WHERE v.owner_id = '$owner_id'";
+        return $this->db_fetch_all($sql);
+    }
+
+    public function get_listings_by_institution($inst_id) {
+        $inst_id = (int)$inst_id;
+        $sql = "SELECT l.*, v.venture_name, c.cat_name, a.full_name as owner_name 
+                FROM listings l
+                JOIN ventures v ON l.venture_id = v.venture_id
+                JOIN categories c ON v.cat_id = c.cat_id
+                JOIN alumni a ON v.owner_id = a.alumni_id
+                WHERE a.institution_id = '$inst_id'";
+        return $this->db_fetch_all($sql);
+    }
+
+    // --- NEW FILTER METHODS ---
+
+    public function get_listings_by_category($cat_id) {
+        $id = (int)$cat_id;
+        $sql = "SELECT l.*, v.venture_name, c.cat_name 
+                FROM listings l
+                JOIN ventures v ON l.venture_id = v.venture_id
+                JOIN categories c ON v.cat_id = c.cat_id
+                WHERE v.cat_id = '$id'";
+        return $this->db_fetch_all($sql);
+    }
+
+    public function get_listings_by_venture($ven_id) {
+        $id = (int)$ven_id;
+        $sql = "SELECT l.*, v.venture_name, c.cat_name 
+                FROM listings l
+                JOIN ventures v ON l.venture_id = v.venture_id
+                JOIN categories c ON v.cat_id = c.cat_id
+                WHERE l.venture_id = '$id'";
+        return $this->db_fetch_all($sql);
+    }
+
+    public function search_listings($term) {
+        $term = mysqli_real_escape_string($this->db_conn(), $term);
+        $sql = "SELECT l.*, v.venture_name, c.cat_name 
+                FROM listings l
+                JOIN ventures v ON l.venture_id = v.venture_id
+                JOIN categories c ON v.cat_id = c.cat_id
+                WHERE l.title LIKE '%$term%' OR l.description LIKE '%$term%' OR l.keywords LIKE '%$term%'";
+        return $this->db_fetch_all($sql);
+    }
+
+    // ... (Keep existing get_one_listing, update_listing, delete_listing) ...
     public function get_one_listing($id) {
         $id = mysqli_real_escape_string($this->db_conn(), $id);
         $sql = "SELECT l.*, v.venture_name, c.cat_name, a.full_name as owner_name, a.alumni_id as owner_id, a.institution_id
@@ -34,11 +86,9 @@ class Listing extends db_connection {
         return $this->db_fetch_one($sql);
     }
 
-    // ... (Keep update_listing and delete_listing as they are) ...
     public function update_listing($id, $title, $price, $desc, $type, $keywords, $image = null) {
         $title = mysqli_real_escape_string($this->db_conn(), $title);
         $desc = mysqli_real_escape_string($this->db_conn(), $desc);
-        
         if ($image) {
             $sql = "UPDATE listings SET title='$title', price='$price', description='$desc', listing_type='$type', keywords='$keywords', image='$image' WHERE listing_id='$id'";
         } else {

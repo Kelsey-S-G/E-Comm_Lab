@@ -14,69 +14,111 @@ $categories = get_all_categories_ctr();
     <title>Admin: Manage Venture Sectors</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../style.css" />
-    <!-- Using Profile CSS for sidebar layout reuse -->
     <link rel="stylesheet" href="../css/profile.css" /> 
     <style>
-        /* Specific overrides for Admin Table */
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 8px; overflow: hidden; }
-        .admin-table th, .admin-table td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        .admin-table th { background-color: var(--color-surface-elevated); font-weight: bold; }
-        .action-btn { padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; cursor: pointer; border: none; }
-        .btn-edit { background-color: #FFC107; color: #000; margin-right: 5px; }
-        .btn-delete { background-color: #DC3545; color: #fff; }
-        .form-inline { display: flex; gap: 10px; margin-bottom: 20px; background: #fff; padding: 20px; border-radius: 8px; }
-        .form-inline input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        /* Dark Theme Admin Table */
+        .admin-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            background: var(--color-surface-elevated); /* Dark Background */
+            border-radius: 8px; 
+            overflow: hidden; 
+            border: 1px solid var(--color-border); /* Consistent Border */
+        }
+        
+        .admin-table th, .admin-table td { 
+            padding: 15px; 
+            text-align: left; 
+            border-bottom: 1px solid var(--color-border); 
+            color: var(--color-on-surface); /* Light text */
+        }
+
+        .admin-table th { 
+            background-color: var(--color-surface); /* Slightly darker header */
+            font-weight: bold; 
+            color: white; /* Explicitly White Headers */
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Action Buttons */
+        .action-btn { padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; cursor: pointer; border: none; font-weight: 600; transition: opacity 0.2s; }
+        .action-btn:hover { opacity: 0.9; }
+        .btn-edit { background-color: #f59e0b; color: #000; margin-right: 5px; } /* Amber */
+        .btn-delete { background-color: #ef4444; color: #fff; } /* Red */
+        .btn-save { margin-right: 5px; }
+
+        /* Dark Theme Form */
+        .form-inline { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px; 
+            background: var(--color-surface-elevated); 
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px solid var(--color-border);
+        }
+        
+        .form-inline input { 
+            flex: 1; 
+            padding: 12px; 
+            border: 1px solid var(--color-border); 
+            border-radius: 6px; 
+            background-color: var(--color-surface); /* Dark Input */
+            color: white; 
+            font-size: 1rem;
+        }
+        
+        .form-inline input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+
+        /* Edit Input Field in Table */
+        .edit-input {
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
     <div class="profile-container">
-        <!-- Reuse Navigation -->
-        <nav class="profile-nav">
-            <div class="profile-nav-content">
-                <a href="../index.php" class="profile-logo">
-                    <span>ReConnect Admin</span>
-                </a>
-                <div class="profile-nav-actions">
-                    <a href="../actions/logout.php"><button class="btn btn-outline btn-sm">Logout</button></a>
-                </div>
-            </div>
-        </nav>
+        <?php include '../view/header.php'; ?>
 
         <div class="profile-wrapper">
-            <!-- Admin Sidebar -->
             <aside class="profile-sidebar">
                 <div class="sidebar-menu">
-                    <a href="#" class="sidebar-link active">
-                        <span class="sidebar-icon">🏢</span>
-                        <span>Venture Sectors</span>
-                    </a>
-                    <!-- Future Admin Links -->
-                    <a href="#" class="sidebar-link">
-                        <span class="sidebar-icon">👥</span>
-                        <span>Verify Alumni</span>
-                    </a>
+                    <a href="venture.php" class="sidebar-link">My Ventures</a>
+                    <a href="listing.php" class="sidebar-link">Manage Listings</a>
+                    <a href="media_library.php" class="sidebar-link">Media Library</a>
+
+                    <div style="border-top: 1px solid var(--color-border); margin: 10px 0;"></div>
+                    <a href="category.php" class="sidebar-link active">🏢 Venture Sectors</a>
                 </div>
             </aside>
 
-            <!-- Main Content -->
             <main class="profile-main">
                 <section class="profile-section">
                     <h2 class="section-title">Manage Venture Sectors</h2>
                     <p class="section-content">Define the industries available for alumni ventures in the marketplace.</p>
 
-                    <!-- Add Category Form -->
                     <div class="form-inline">
                         <input type="text" id="newCategoryName" placeholder="Enter new sector name (e.g. AgriTech, Legal Services)" />
                         <button id="addCategoryBtn" class="btn btn-primary">Add Sector</button>
                     </div>
 
-                    <!-- List of Categories -->
                     <table class="admin-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th style="width: 10%;">ID</th>
                                 <th>Sector Name</th>
-                                <th>Actions</th>
+                                <th style="width: 20%;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="categoryTableBody">
@@ -96,7 +138,7 @@ $categories = get_all_categories_ctr();
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <tr><td colspan="3">No sectors defined yet.</td></tr>
+                                <tr><td colspan="3" style="text-align:center;">No sectors defined yet.</td></tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
@@ -105,7 +147,6 @@ $categories = get_all_categories_ctr();
         </div>
     </div>
 
-    <!-- JavaScript for AJAX Operations -->
     <script src="../js/category.js"></script>
 </body>
 </html>
