@@ -27,17 +27,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
-    // 3. Check for Duplicates
+    // 3. Validate Email Domain
+    $required_domain = get_institution_domain_ctr($institution_id);
+    
+    if ($required_domain) {
+        // Check if email ends with the required domain
+        // We use strtolower to ensure case-insensitive comparison
+        if (substr(strtolower($email), -strlen($required_domain)) !== strtolower($required_domain)) {
+            echo json_encode(['status' => 'error', 'message' => "Email must use the institutional domain: @$required_domain"]);
+            exit();
+        }
+    }
+
+    // 4. Check for Duplicates
     $existing = get_alumni_by_email_ctr($email);
     if ($existing) {
         echo json_encode(['status' => 'error', 'message' => 'Email already registered.']);
         exit();
     }
 
-    // 4. Encrypt Password (Week 2 Requirement)
+    // 5. Encrypt Password (Week 2 Requirement)
     $hash_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // 5. Register User
+    // 6. Register User
     $result = register_alumni_ctr($fullname, $email, $hash_password, $country, $city, $contact, $institution_id, $matric_no, $grad_year);
 
     if ($result) {

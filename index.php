@@ -2,10 +2,11 @@
 // 1. Load Core Settings
 require_once 'settings/core.php';
 
-// 2. Include the Header 
+// 2. Include the Header (Navigation logic is inside header.php)
 include 'view/header.php';
 ?>
 
+<!-- Original Content Structure Preserved -->
 <div class="home-container10">
     <div class="home-container11">
         <div class="home-container12">
@@ -105,11 +106,13 @@ include 'view/header.php';
                         opportunities designed for former students and institutions.
                     </p>
                     <div class="hero-actions">
-                        <a href="login/signup.php">
-                            <div role="button" aria-label="Get verified and join ReConnect" class="btn btn-primary btn-lg">
-                                <span>Get Verified</span>
-                            </div>
-                        </a>
+                        <?php if (!is_logged_in()): ?>
+                            <a href="login/signup.php">
+                                <div role="button" aria-label="Get verified and join ReConnect" class="btn btn-primary btn-lg">
+                                    <span>Get Verified</span>
+                                </div>
+                            </a>
+                        <?php endif; ?>
                         <a href="#how-works-section">
                             <div role="button" aria-label="Learn more about ReConnect" class="btn btn-lg btn-outline">
                                 <span>Learn More</span>
@@ -162,11 +165,13 @@ include 'view/header.php';
                         records and multi-factor identity checks — so decisions,
                         collaborations, and transactions happen with confidence.
                     </p>
-                    <a href="login/signup.php">
-                        <div role="button" aria-label="Claim your verified profile" class="btn btn-primary">
-                            <span>Claim Your Profile</span>
-                        </div>
-                    </a>
+                    <?php if (!is_logged_in()): ?>
+                        <a href="login/signup.php">
+                            <div role="button" aria-label="Claim your verified profile" class="btn btn-primary">
+                                <span>Claim Your Profile</span>
+                            </div>
+                        </a>
+                    <?php endif; ?>
                 </div>
                 <div class="identity-cards-grid">
                     <article role="article" class="identity-card">
@@ -203,6 +208,72 @@ include 'view/header.php';
                         <p>Direct data partnerships ensure accreditation status is current.</p>
                     </article>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section (New) -->
+    <section id="how-works-section" role="region" aria-labelledby="how-works-heading">
+        <div class="how-works-container">
+            <div class="how-works-anchor">
+                <h2 id="how-works-heading">How ReConnect Works</h2>
+                <p class="anchor-intro">
+                    A simple, transparent process from verification to ethical
+                    opportunity — designed for institutions and alumni seeking
+                    meaningful impact.
+                </p>
+                <?php if (!is_logged_in()): ?>
+                    <a href="login/signup.php">
+                        <div role="button" aria-label="Start your verification process" class="btn btn-primary">
+                            <span>Get Started</span>
+                        </div>
+                    </a>
+                <?php endif; ?>
+            </div>
+            <div role="list" aria-label="ReConnect process steps" class="how-works-timeline">
+                <article role="listitem" class="timeline-step timeline-step-hero">
+                    <div class="step-number"><span>01</span></div>
+                    <div class="step-content">
+                        <h3>Simple Onboarding — Verified in Minutes</h3>
+                        <p>
+                            Create your ReConnect profile using institutional
+                            credentials or secure ID verification. We authenticate
+                            affiliations so every connection starts from trust.
+                        </p>
+                    </div>
+                </article>
+                <article role="listitem" class="timeline-step">
+                    <div class="step-number"><span>02</span></div>
+                    <div class="step-content">
+                        <h3>Curated Identity &amp; Network Building</h3>
+                        <p>
+                            Reconnect with classmates, join your cohort's digital space,
+                            and map professional skills visible only to verified peers.
+                        </p>
+                    </div>
+                </article>
+                <article role="listitem" class="timeline-step">
+                    <div class="step-number"><span>03</span></div>
+                    <div class="step-content">
+                        <h3>Discover Opportunities Tailored to You</h3>
+                        <p>
+                            Find mentorships, jobs, and business partnerships within
+                            your alumni network. Support fellow graduates by purchasing
+                            from their verified ventures.
+                        </p>
+                    </div>
+                </article>
+                <article role="listitem" class="timeline-step">
+                    <div class="step-number"><span>04</span></div>
+                    <div class="step-content">
+                        <h3>Ethical Monetization</h3>
+                        <p>
+                            Offer your own services or products. Transactions are
+                            secure, with a small percentage going back to support
+                            community initiatives.
+                        </p>
+                    </div>
+                </article>
             </div>
         </div>
     </section>

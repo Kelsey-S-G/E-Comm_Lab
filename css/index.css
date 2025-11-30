@@ -9,12 +9,12 @@ body {
 /* Ensure the main container spans the full height */
 .navigation-wrapper {
   display: contents;
-  height: 100%; 
+  height: 100%;
 }
 
 .navigation-container1 {
   display: contents;
-  height: 100%; 
+  height: 100%;
 }
 
 .navigation-navigationtoggle-icon1 {
@@ -139,12 +139,14 @@ body {
 }
 
 /* Updated section background colors to use surface-elevated for visual hierarchy and contrast */
+/* Remove top padding and add negative margin to bring hero flush with header */
 #hero-section {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: var(--spacing-4xl) 0;
+  padding: 0 0 var(--spacing-4xl) 0;
+  margin-top: -80px;
   background: var(--color-surface);
   position: relative;
   overflow: hidden;
@@ -178,4 +180,12 @@ body {
 #impact-metrics-section {
   padding: var(--section-gap) 0;
   background: var(--color-surface);
+}
+
+@media (max-width: 767px) {
+  #hero-section {
+    min-height: auto;
+    padding: 0 0 var(--spacing-3xl) 0;
+    margin-top: -80px;
+  }
 }

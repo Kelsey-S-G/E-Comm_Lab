@@ -6,9 +6,9 @@ function add_event_ctr($organizer_id, $title, $desc, $date, $start, $end, $locat
     return $event->add_event($organizer_id, $title, $desc, $date, $start, $end, $location, $type, $image);
 }
 
-function get_upcoming_events_ctr() {
+function get_upcoming_events_ctr($institution_id) {
     $event = new Event();
-    return $event->get_upcoming_events();
+    return $event->get_upcoming_events($institution_id);
 }
 
 function register_attendee_ctr($event_id, $attendee_id) {
@@ -19,5 +19,16 @@ function register_attendee_ctr($event_id, $attendee_id) {
 function get_attendee_count_ctr($event_id) {
     $event = new Event();
     return $event->get_attendee_count($event_id);
+}
+
+// NEW
+function update_event_ctr($id, $title, $desc, $date, $start, $end, $location, $type) {
+    $event = new Event();
+    return $event->update_event($id, $title, $desc, $date, $start, $end, $location, $type);
+}
+
+function delete_event_ctr($id) {
+    $event = new Event();
+    return $event->delete_event($id);
 }
 ?>

@@ -1,5 +1,4 @@
 <?php
-// controllers/venture_controller.php
 require_once(__DIR__ . "/../classes/venture_class.php");
 
 function add_venture_ctr($name, $owner_id, $cat_id, $desc) {
@@ -15,6 +14,12 @@ function get_all_ventures_ctr() {
 function get_my_ventures_ctr($owner_id) {
     $venture = new Venture();
     return $venture->get_my_ventures($owner_id);
+}
+
+// NEW: Get one for permission check
+function get_one_venture_ctr($id) {
+    $venture = new Venture();
+    return $venture->get_one_venture($id);
 }
 
 function update_venture_ctr($id, $name, $cat_id, $desc) {

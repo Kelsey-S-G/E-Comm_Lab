@@ -35,6 +35,14 @@ class Alumni extends db_connection {
         return $this->db_fetch_all($sql);
     }
 
+    // NEW: Get Domain for Validation
+    public function get_institution_domain($institution_id) {
+        $id = (int)$institution_id;
+        $sql = "SELECT domain FROM institutions WHERE institution_id = $id";
+        $result = $this->db_fetch_one($sql);
+        return $result ? $result['domain'] : null;
+    }
+
     // NEW: Fetch all verified alumni for directory
     public function get_all_alumni() {
         // Join with institutions to get school name
@@ -44,5 +52,30 @@ class Alumni extends db_connection {
                 WHERE a.verification_status = 'verified' OR a.verification_status = 'pending'"; 
         return $this->db_fetch_all($sql);
     }
+    
+    // NEW: Get full details by ID
+    public function get_alumni_details($id) {
+        $sql = "SELECT * FROM alumni WHERE alumni_id = '$id'";
+        return $this->db_fetch_one($sql);
+    }
+
+    // NEW: Update Profile
+    public function update_profile($id, $fullname, $position, $country, $city, $contact) {
+        // Sanitize inputs
+        $fullname = mysqli_real_escape_string($this->db_conn(), $fullname);
+        $position = mysqli_real_escape_string($this->db_conn(), $position);
+        $country = mysqli_real_escape_string($this->db_conn(), $country);
+        $city = mysqli_real_escape_string($this->db_conn(), $city);
+        $contact = mysqli_real_escape_string($this->db_conn(), $contact);
+
+        $sql = "UPDATE alumni SET 
+                full_name = '$fullname',
+                current_position = '$position',
+                country = '$country',
+                city = '$city',
+                contact_no = '$contact'
+                WHERE alumni_id = '$id'";
+        
+        return $this->db_query($sql);
+    }
 }
-?>

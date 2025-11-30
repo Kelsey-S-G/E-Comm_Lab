@@ -17,16 +17,20 @@ $ip_add = $_SERVER['REMOTE_ADDR']; // Standard IP capture
 
 switch ($action) {
     case 'add':
+        // CHECK: Must be verified to enroll/pay
+        if (!isVerified()) {
+            echo json_encode(['status' => 'error', 'message' => 'Only verified alumni can make purchases or enroll.']);
+            exit();
+        }
+
         $p_id = $_POST['listing_id'];
         $qty = $_POST['qty'] ?? 1;
+        $ip_add = $_SERVER['REMOTE_ADDR'];
         
         $result = add_to_cart_ctr($p_id, $ip_add, $user_id, $qty);
         
-        if ($result) {
-            echo json_encode(['status' => 'success', 'message' => 'Item added to cart']);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Failed to add item']);
-        }
+        if ($result) echo json_encode(['status' => 'success', 'message' => 'Added to cart']);
+        else echo json_encode(['status' => 'error', 'message' => 'Failed']);
         break;
 
     case 'update_qty':

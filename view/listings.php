@@ -89,8 +89,8 @@ $ventures = get_all_ventures_ctr();
             <h2 class="section-title"><?php echo $filter_title; ?></h2>
             
             <?php if (empty($listings)): ?>
-                <div class="alert alert-info" style="text-align:center; padding: 2rem;">
-                    No listings found matching your criteria. <a href="listings.php">View all</a>
+                <div class="alert alert-info" style="text-align:center; padding: 2rem; background-color: var(--color-surface-elevated); border-radius: 8px; border: 1px solid var(--color-border); color: var(--color-on-surface);">
+                    No listings found matching your criteria. <a href="listings.php" style="color: var(--color-primary);">View all</a>
                 </div>
             <?php else: ?>
                 <div class="marketplace-grid">

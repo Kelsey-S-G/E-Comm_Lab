@@ -8,7 +8,8 @@ if (!isset($_GET['id'])) {
 }
 
 $id = $_GET['id'];
-$listing = get_single_listing_ctr($id);
+
+$listing = get_one_listing_ctr($id);
 
 if (!$listing) {
     echo "Listing not found.";
@@ -38,21 +39,19 @@ if (!$listing) {
         <?php include 'header.php'; ?>
 
         <div class="single-product-container">
-            <!-- Image Column -->
             <div class="product-gallery">
                 <?php $imgSrc = !empty($listing['image']) ? $listing['image'] : '../assets/placeholder_product.png'; ?>
                 <img src="<?php echo $imgSrc; ?>" class="product-main-img" alt="<?php echo $listing['title']; ?>">
             </div>
 
-            <!-- Details Column -->
             <div class="product-details">
                 <span class="badge"><?php echo ucfirst($listing['listing_type']); ?></span>
                 <h1><?php echo $listing['title']; ?></h1>
                 
                 <div class="product-meta">
-                    <span>Venture: <strong><?php echo $listing['venture_name']; ?></strong></span> | 
-                    <span>Alumni: <strong><?php echo $listing['owner_name']; ?></strong></span> | 
-                    <span>Sector: <strong><?php echo $listing['cat_name']; ?></strong></span>
+                    <span>Venture: <strong><?php echo $listing['venture_name'] ?? 'N/A'; ?></strong></span> | 
+                    <span>Alumni: <strong><?php echo $listing['owner_name'] ?? 'N/A'; ?></strong></span> | 
+                    <span>Sector: <strong><?php echo $listing['cat_name'] ?? 'N/A'; ?></strong></span>
                 </div>
 
                 <div class="product-price-lg">GHS <?php echo number_format($listing['price'], 2); ?></div>
@@ -61,11 +60,9 @@ if (!$listing) {
                     <?php echo nl2br($listing['description']); ?>
                 </p>
 
-                <!-- Week 7 Requirement: Add to Cart Placeholder -->
-                <!-- Note: Week 9 will implement the actual cart functionality -->
                 <div class="purchase-actions">
                     <form>
-                        <input type="number" value="1" min="1" style="padding: 10px; width: 60px; margin-right: 10px;">
+                        <input type="number" id="qtyInput" value="1" min="1" style="padding: 10px; width: 60px; margin-right: 10px;">
                         <button type="button" class="btn btn-primary btn-lg" onclick="addToCart(<?php echo $listing['listing_id']; ?>)">
                             Add to Cart
                         </button>
@@ -78,9 +75,43 @@ if (!$listing) {
     </div>
 
     <script>
-        // Placeholder for Week 9
         function addToCart(id) {
-            alert("Listing " + id + " added to cart!");
+            // 1. Get quantity from the input we just named
+            const qtyInput = document.getElementById("qtyInput");
+            const qty = qtyInput ? qtyInput.value : 1;
+
+            if (qty < 1) {
+                alert("Please enter a valid quantity.");
+                return;
+            }
+
+            // 2. Prepare Data
+            const formData = new FormData();
+            formData.append("action", "add");
+            formData.append("listing_id", id);
+            formData.append("qty", qty);
+
+            // 3. Send to Backend
+            fetch("../actions/cart_actions.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert(data.message); // "Added to cart"
+                    // Optional: Ask to go to cart
+                    if(confirm("Item added! Go to Cart?")) {
+                        window.location.href = "cart.php";
+                    }
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Network error. Please ensure you are logged in.");
+            });
         }
     </script>
 </body>

@@ -2,7 +2,7 @@
 // actions/initialize_payment_action.php
 require_once("../controllers/cart_controller.php");
 require_once("../controllers/order_controller.php"); // Reuse order creation logic
-require_once("../controllers/payment_controller.php");
+require_once("../controllers/paystack_controller.php");
 require_once("../settings/core.php");
 
 check_login();

@@ -1,5 +1,6 @@
 <?php
-require_once("../controllers/payment_controller.php");
+// ReConnect/view/payment_callback.php
+require_once("../controllers/paystack_controller.php");
 require_once("../controllers/order_controller.php");
 require_once("../controllers/cart_controller.php");
 require_once("../settings/core.php");
@@ -7,7 +8,8 @@ require_once("../settings/core.php");
 // 1. Ensure user is logged in
 check_login();
 
-$reference = $_GET['reference'] ?? '';
+// Get reference from URL
+$reference = $_GET['reference'] ?? $_GET['trxref'] ?? '';
 $status_msg = "Verifying payment...";
 $status_class = "info";
 
@@ -18,48 +20,42 @@ if ($reference) {
     if ($verification['status'] && $verification['data']['status'] === 'success') {
         
         // 3. Get Verification Data
-        $amount_paid = $verification['data']['amount'] / 100; // Convert kobo to GHS
-        $paystack_email = $verification['data']['customer']['email']; // Email from Paystack transaction
+        $amount_paid = $verification['data']['amount'] / 100;
+        $paystack_email = $verification['data']['customer']['email'];
         $user_id = get_user_id();
-        $user_name = get_user_name(); // Ensure this function exists in core.php
+        
+        // Use Session name
+        $user_name = $_SESSION['user_name'] ?? 'Valued Customer'; 
 
         // 4. Find the Pending Order
-        // Ideally, get_order_by_invoice_ctr($reference) should return the order details
-        // If not implemented, we assume the current session user owns the pending order
-        // For robustness, let's assume we have the order ID from the reference logic or session
-        
-        // RECORD PAYMENT
-        // Assuming we fetch the order ID based on the reference (invoice_no)
         $order = get_order_by_invoice_ctr($reference);
 
         if ($order) {
-            // Record in DB
-            record_payment_ctr($amount_paid, $user_id, $order['order_id']);
-            
-            // Update Order Status to 'Success' (Optional but recommended)
-            // update_order_status_ctr($order['order_id'], 'success');
+            // Check if already paid
+            if ($order['status'] !== 'success') {
+                // Record Payment
+                record_payment_ctr($amount_paid, $user_id, $order['order_id']);
+                
+                // Update Order Status
+                update_order_status_ctr($order['order_id'], 'success');
 
-            // Empty Cart
-            empty_cart_ctr($user_id);
-            
-            // --- NEW: SEND EMAIL RECEIPT ---
-            // Use the email from Paystack or Session
-            send_payment_receipt($paystack_email, $user_name, $reference, $amount_paid);
+                // Empty Cart
+                empty_cart_ctr($user_id);
+            }
 
-            $status_msg = "Payment Successful! A receipt has been sent to $paystack_email.";
+            $status_msg = "Payment Successful! Thank you, $user_name.";
             $status_class = "success";
         } else {
-            // Edge case: Payment verified but DB order not found immediately
-            $status_msg = "Payment verified. Order processing...";
+            $status_msg = "Payment verified, but order record not found. Please contact support.";
             $status_class = "warning";
         }
 
     } else {
-        $status_msg = "Payment Failed or Declined.";
+        $status_msg = "Payment Failed or Declined. Please try again.";
         $status_class = "error";
     }
 } else {
-    $status_msg = "Invalid reference.";
+    $status_msg = "Invalid reference provided.";
     $status_class = "error";
 }
 ?>
@@ -70,24 +66,90 @@ if ($reference) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="../style.css" />
     <style>
-        .status-card { max-width: 500px; margin: 100px auto; padding: 2rem; border-radius: 12px; text-align: center; background: var(--color-surface-elevated); box-shadow: var(--shadow-level-2); }
-        .success { color: green; border: 1px solid green; }
-        .error { color: red; border: 1px solid red; }
-        .warning { color: orange; border: 1px solid orange; }
-        .info { color: blue; }
-        h2 { margin-bottom: 1rem; }
+        /* Dark Theme Optimized Styles */
+        body {
+            background-color: var(--color-surface);
+            color: var(--color-on-surface);
+        }
+
+        .status-card { 
+            max-width: 500px; 
+            margin: 100px auto; 
+            padding: 3rem 2rem; 
+            border-radius: 12px; 
+            text-align: center; 
+            background: var(--color-surface-elevated); 
+            box-shadow: var(--shadow-level-2); 
+            border: 1px solid var(--color-border);
+        }
+
+        /* Status Colors using RGBA for Dark Mode Transparency */
+        .success { 
+            border: 1px solid rgba(74, 222, 128, 0.3); /* Green Border */
+            background-color: rgba(74, 222, 128, 0.1); /* Subtle Green Tint */
+        }
+        .success h2 { color: #4ade80; } /* Bright Green Text */
+
+        .error { 
+            border: 1px solid rgba(248, 113, 113, 0.3); /* Red Border */
+            background-color: rgba(248, 113, 113, 0.1); /* Subtle Red Tint */
+        }
+        .error h2 { color: #f87171; } /* Bright Red Text */
+
+        .warning { 
+            border: 1px solid rgba(251, 191, 36, 0.3); /* Amber Border */
+            background-color: rgba(251, 191, 36, 0.1); /* Subtle Amber Tint */
+        }
+        .warning h2 { color: #fbbf24; } /* Bright Amber Text */
+
+        .info { 
+            border: 1px solid rgba(96, 165, 250, 0.3); /* Blue Border */
+            background-color: rgba(96, 165, 250, 0.1); /* Subtle Blue Tint */
+        }
+        .info h2 { color: #60a5fa; } /* Bright Blue Text */
+
+        h2 { 
+            margin-bottom: 1rem; 
+            font-family: var(--font-family-heading); 
+            font-size: 1.5rem;
+        }
+
+        p { 
+            margin-bottom: 2rem; 
+            color: var(--color-on-surface-secondary); 
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Override button margin for this page */
+        .btn-primary {
+            width: 70%;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
     <?php include 'header.php'; ?>
     
     <div class="status-card <?php echo $status_class; ?>">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">
+            <?php 
+                if ($status_class == 'success') echo '✅';
+                elseif ($status_class == 'error') echo '❌';
+                elseif ($status_class == 'warning') echo '⚠️';
+                else echo 'ℹ️';
+            ?>
+        </div>
+
         <h2><?php echo $status_msg; ?></h2>
+        
         <?php if($reference): ?>
-            <p>Reference: <strong><?php echo htmlspecialchars($reference); ?></strong></p>
+            <p>Transaction Reference: <br><strong style="color: var(--color-on-surface);"><?php echo htmlspecialchars($reference); ?></strong></p>
         <?php endif; ?>
-        <br>
-        <a href="listings.php" class="btn btn-primary">Return to Marketplace</a>
+        
+        <div>
+            <a href="listings.php" class="btn btn-primary">Return to Marketplace</a>
+        </div>
     </div>
 
     <?php include 'footer.php'; ?>

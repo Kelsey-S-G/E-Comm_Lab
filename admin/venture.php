@@ -66,12 +66,12 @@ $sectors = get_all_categories_ctr();
                                         <strong><?php echo $v['venture_name']; ?></strong>
                                         <span class="badge"><?php echo $v['cat_name']; ?></span>
                                     </div>
-                                    <p><?php echo $v['description']; ?></p>
+                                    <p style="color: var(--color-on-surface-secondary);"><?php echo $v['description']; ?></p>
                                     <!-- Add Edit/Delete Buttons triggering JS here -->
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p>No ventures registered yet.</p>
+                            <p style="color: var(--color-on-surface-secondary);">No ventures registered yet.</p>
                         <?php endif; ?>
                     </div>
                 </section>

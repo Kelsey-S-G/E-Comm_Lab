@@ -1,5 +1,5 @@
 <?php
-// controllers/payment_controller.php
+// controllers/paystack_controller.php
 require_once(__DIR__ . "/../settings/paystack_config.php");
 
 /**
@@ -8,19 +8,39 @@ require_once(__DIR__ . "/../settings/paystack_config.php");
 function initialize_paystack_payment($email, $amount, $reference) {
     $url = PAYSTACK_URL . "/transaction/initialize";
     
-    // Amount in Kobo (or smallest currency unit)
-    // Paystack usually expects NGN kobo. For GHS, it expects Pesewas.
+    // Amount in Kobo/Pesewas
     $amount_minor = $amount * 100; 
 
-    // Callback URL (Update domain for production)
-    $callback_url = "http://localhost/ReConnect/view/payment_callback.php"; 
+    // --- AUTOMATIC CALLBACK URL GENERATION ---
+    // 1. Detect Protocol
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+    
+    // 2. Detect Host (localhost)
+    $host = $_SERVER['HTTP_HOST'];
+    
+    // 3. Detect Project Root Folder
+    // $_SERVER['SCRIPT_NAME'] is the path of the file currently running (e.g., /MyProject/actions/initialize_payment_action.php)
+    // dirname(...) gets the folder. We go up 2 levels to find the project root.
+    // Level 1: /MyProject/actions
+    // Level 2: /MyProject
+    $project_root = dirname(dirname($_SERVER['SCRIPT_NAME']));
+    
+    // Fix for Windows paths causing issues (converts backslash to forward slash)
+    $project_root = str_replace('\\', '/', $project_root);
+    
+    // Handle root directory edge case
+    if ($project_root === '/') $project_root = '';
+
+    // Final URL
+    $callback_url = "$protocol://$host$project_root/view/payment_callback.php";
+    // ----------------------------------------
 
     $fields = [
         'email' => $email,
         'amount' => $amount_minor,
         'reference' => $reference,
         'callback_url' => $callback_url,
-        'currency' => 'GHS' // Important: Set to GHS for Ghana Cedis
+        'currency' => 'GHS'
     ];
 
     $fields_string = http_build_query($fields);
