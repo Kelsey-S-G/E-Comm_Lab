@@ -33,7 +33,6 @@ switch ($action) {
         else echo json_encode(['status' => 'error', 'message' => 'Failed to create event']);
         break;
 
-    // NEW CASE: Fetch Details for Edit Modal
     case 'fetch_details':
         $id = $_POST['event_id'];
         $event = get_one_event_ctr($id);
@@ -44,7 +43,6 @@ switch ($action) {
         }
         break;
 
-    // NEW CASE: Handle Update
     case 'update':
         if ($user_role != 1) { echo json_encode(['status' => 'error', 'message' => 'Unauthorized']); exit(); }
         
@@ -77,6 +75,12 @@ switch ($action) {
         break;
 
     case 'register':
+        // UPDATED: Check Verification Status First
+        if (!isVerified()) {
+            echo json_encode(['status' => 'error', 'message' => 'Only verified alumni can register for events.']);
+            exit();
+        }
+
         $event_id = $_POST['event_id'];
         $result = register_attendee_ctr($event_id, $user_id);
         if ($result) echo json_encode(['status' => 'success', 'message' => 'Registered successfully!']);
