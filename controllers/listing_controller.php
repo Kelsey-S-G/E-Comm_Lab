@@ -1,7 +1,6 @@
 <?php
 require_once(__DIR__ . "/../classes/listing_class.php");
 
-// ... (Keep existing controllers: add, get_all, get_my, get_inst, get_one, update, delete) ...
 function add_listing_ctr($venture_id, $title, $price, $desc, $type, $image, $keywords) {
     $listing = new Listing();
     return $listing->add_listing($venture_id, $title, $price, $desc, $type, $image, $keywords);
@@ -22,22 +21,24 @@ function get_listings_by_institution_ctr($inst_id) {
     return $listing->get_listings_by_institution($inst_id);
 }
 
-// --- NEW CONTROLLERS FOR FILTERS ---
+// --- UPDATED CONTROLLERS FOR FILTERS ---
 
-function filter_listings_by_category_ctr($cat_id) {
+function filter_listings_by_category_ctr($cat_id, $inst_id) {
     $listing = new Listing();
-    return $listing->get_listings_by_category($cat_id);
+    return $listing->get_listings_by_category($cat_id, $inst_id);
 }
 
-function filter_listings_by_venture_ctr($ven_id) {
+function filter_listings_by_venture_ctr($ven_id, $inst_id) {
     $listing = new Listing();
-    return $listing->get_listings_by_venture($ven_id);
+    return $listing->get_listings_by_venture($ven_id, $inst_id);
 }
 
-function search_listings_ctr($term) {
+function search_listings_ctr($term, $inst_id) {
     $listing = new Listing();
-    return $listing->search_listings($term);
+    return $listing->search_listings($term, $inst_id);
 }
+
+// -----------------------------------
 
 function get_one_listing_ctr($id) {
     $listing = new Listing();
